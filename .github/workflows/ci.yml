@@ -11,6 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: Install build deps (isal-sys builds ISA-L from C+asm)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends nasm autoconf automake libtool
       - run: cargo fmt --all -- --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test
