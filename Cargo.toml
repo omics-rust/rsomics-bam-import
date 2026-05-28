@@ -12,6 +12,11 @@ description = "Convert FASTQ to unaligned BAM — Rust port of samtools import"
 name = "rsomics-bam-import"
 path = "src/main.rs"
 
+
+[lib]
+name = "rsomics_bam_import"
+path = "src/lib.rs"
+doctest = false
 [dependencies]
 rsomics-common = { version = "0.6" }
 rsomics-bamio = { version = "0.1" }
