@@ -5,11 +5,7 @@ use rsomics_common::{Result, RsomicsError};
 // SAMv1 §4.2 fixed record header size
 pub(crate) const FIXED_HEADER: usize = 32;
 
-/// Serialise one FASTQ record to BAM bytes in `buf` (cleared first).
-///
-/// Unmapped unaligned defaults: refID=-1, pos=-1 (BAM 0-based; SAM POS=0),
-/// MAPQ=0, CIGAR empty, RNEXT=-1, PNEXT=-1, TLEN=0 — exactly what samtools
-/// import emits (black-box verified against 1.23.1).
+/// Unmapped unaligned defaults match samtools import 1.23.1 (black-box verified).
 pub(crate) fn encode_bam_record(
     buf: &mut Vec<u8>,
     name: &[u8],
@@ -44,7 +40,7 @@ pub(crate) fn encode_bam_record(
     buf.extend_from_slice(name);
     buf.push(0); // NUL-terminate read_name
 
-    // SEQ: 4-bit encoding, two bases per byte (SAM spec Table 3)
+    // SEQ: SAM spec Table 3
     let full_pairs = seq.len() / 2;
     for i in 0..full_pairs {
         buf.push((nt16(seq[i * 2]) << 4) | nt16(seq[i * 2 + 1]));
@@ -54,7 +50,6 @@ pub(crate) fn encode_bam_record(
     }
     debug_assert_eq!(buf.len(), FIXED_HEADER + name.len() + 1 + seq_bytes);
 
-    // QUAL: FASTQ ASCII (Phred+33) → raw Phred
     for &q in qual {
         buf.push(q - 33);
     }

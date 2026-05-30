@@ -137,7 +137,6 @@ fn build_sam_record(
     use sam::alignment::record_buf::{Data, QualityScores, Sequence};
 
     let sequence = Sequence::from(seq.to_vec());
-    // FASTQ qual is ASCII (Phred+33); SAM stores raw Phred values
     let qual_phred: Vec<u8> = qual.iter().map(|&q| q - 33).collect();
     let quality_scores = QualityScores::from(qual_phred);
 
@@ -146,8 +145,7 @@ fn build_sam_record(
         data.insert(Tag::READ_GROUP, Value::String(id.into()));
     }
 
-    // MAPQ=0 for all unaligned reads — MappingQuality::new(255) is None (missing);
-    // samtools import uses 0, not the missing sentinel.
+    // samtools import uses 0, not the missing (255) sentinel.
     let mapq = MappingQuality::new(0).expect("0 is a valid MAPQ");
 
     let mut builder = sam::alignment::RecordBuf::builder()
